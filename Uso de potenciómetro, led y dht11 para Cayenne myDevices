@@ -1,0 +1,51 @@
+#include "DHT.h"
+
+#define DHTPIN 2        
+#define DHTTYPE DHT11   
+
+DHT dht(DHTPIN, DHTTYPE);
+const int potPin = A1;   
+const int ledPin = 3;    
+
+void setup() {
+  Serial.begin(9600);    
+  pinMode(ledPin, OUTPUT);
+  Serial.println("DHTxx test!");
+  dht.begin();        
+}
+
+void loop() {
+    delay(200);  // Espera 2 segundos entre lecturas
+
+  float humedad = dht.readHumidity();
+  float temperature = dht.readTemperature();  // Lee la temperatura en grados Celsius
+  float f = dht.readTemperature(true);
+
+  if (isnan (humedad) || isnan(temperature) || isnan (f)) {  // Verifica si hay un error en la lectura del sensor
+    Serial.println("Error al leer la temperatura");
+    return;
+  
+
+    float hif = dht.computeHeatIndex (f, humedad);
+
+    float hic = dht.computeHeatIndex (temperature, f);
+
+  } else {
+    Serial.print("Temperatura: ");
+    Serial.print(temperature);
+    Serial.print(" *C ");
+    Serial.print(" Humedad:  ");
+    Serial.print (humedad);
+    Serial.println("%\t");
+    delay(500);
+  int intensity = analogRead(potPin);   
+  int mappedIntensity = map(intensity, 0, 1023, 0, 255);   
+  
+  analogWrite(ledPin, mappedIntensity);   
+  
+  Serial.print("Intensidad: ");
+  Serial.println(mappedIntensity);  
+  
+  delay(500);    
+}
+}
